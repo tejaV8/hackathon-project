@@ -1,107 +1,82 @@
-import {
-  Search,
-  Bell,
-  ChevronDown,
-} from "lucide-react";
+import { Bell, ChevronDown, Menu, Search } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
+import { sidebarItems } from "./SidebarData";
 
-export default function Navbar() {
+interface NavbarProps {
+  onMenuClick: () => void;
+}
+
+export default function Navbar({ onMenuClick }: NavbarProps) {
+  const location = useLocation();
+  const currentPage =
+    sidebarItems.find((item) => item.path === location.pathname)?.title ?? "Home";
+
   return (
-    <header className="h-20 border-b border-zinc-800 bg-[#0F0F17] px-8 flex items-center justify-between">
-
-      {/* Search */}
-
-      <div className="relative w-[550px]">
-
-        <Search
-          size={18}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"
-        />
-
-        <input
-          type="text"
-          placeholder="Search across your company knowledge..."
-          className="
-          w-full
-          rounded-2xl
-          bg-[#18181F]
-          border
-          border-zinc-700
-          py-3
-          pl-12
-          pr-20
-          text-white
-          placeholder:text-zinc-500
-          outline-none
-          transition
-          focus:border-violet-500
-          "
-        />
-
-        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-
-          <div className="rounded-lg bg-zinc-700 px-2 py-1 text-xs text-zinc-300">
-
-            Ctrl K
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* Right */}
-
-      <div className="flex items-center gap-6">
-
-        {/* Theme */}
-
-        <button className="rounded-xl bg-[#18181F] p-3 hover:bg-zinc-700 transition">
-
-          🌙
-
-        </button>
-
-        {/* Notification */}
-
-        <button className="relative">
-
-          <Bell size={22} />
-
-          <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-violet-500"></span>
-
-        </button>
-
-        {/* User */}
-
-        <div className="flex items-center gap-3 cursor-pointer">
-
-          <img
-            src="https://i.pravatar.cc/100"
-            className="w-11 h-11 rounded-full"
-          />
-
+    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#07070c]/75 px-4 py-4 backdrop-blur-xl light:border-slate-200 light:bg-slate-50/80 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <button
+            type="button"
+            onClick={onMenuClick}
+            className="rounded-lg border border-white/10 bg-white/[0.06] p-2.5 text-zinc-200 lg:hidden"
+          >
+            <Menu size={18} />
+          </button>
           <div>
-
-            <p className="font-semibold">
-
-              Priya Sharma
-
+            <p className="text-xs text-zinc-500 light:text-slate-500">
+              Workspace / {currentPage}
             </p>
-
-            <p className="text-sm text-zinc-400">
-
-              Product Team
-
-            </p>
-
+            <h2 className="text-lg font-semibold text-white light:text-slate-950">
+              {currentPage}
+            </h2>
           </div>
-
-          <ChevronDown size={18} />
-
         </div>
 
-      </div>
+        <div className="relative hidden min-w-[260px] max-w-xl flex-1 md:block">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
+          />
+          <input
+            type="text"
+            placeholder="Search company knowledge..."
+            className="w-full rounded-lg border border-white/10 bg-white/[0.06] py-2.5 pl-10 pr-16 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-violet-400 light:border-slate-200 light:bg-white light:text-slate-950"
+          />
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-white/10 px-2 py-1 text-[10px] font-medium text-zinc-400 light:bg-slate-100">
+            Ctrl K
+          </span>
+        </div>
 
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="relative rounded-lg border border-white/10 bg-white/[0.06] p-2.5 text-zinc-200 transition hover:border-violet-400/50 hover:bg-white/[0.1] light:border-slate-200 light:bg-white light:text-slate-700"
+          >
+            <Bell size={18} />
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-violet-400" />
+          </button>
+
+          <button
+            type="button"
+            className="hidden items-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] py-1.5 pl-2 pr-3 transition hover:bg-white/[0.1] light:border-slate-200 light:bg-white sm:flex"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 text-sm font-bold text-white">
+              PS
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-white light:text-slate-950">
+                Priya Sharma
+              </p>
+              <p className="text-xs text-zinc-500 light:text-slate-500">
+                Product Team
+              </p>
+            </div>
+            <ChevronDown size={16} className="text-zinc-500" />
+          </button>
+        </div>
+      </div>
     </header>
   );
 }

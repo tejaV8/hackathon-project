@@ -1,113 +1,100 @@
-import { BrainCircuit } from "lucide-react";
-import { sidebarItems } from "./sidebarData";
+import { BrainCircuit, X } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { sidebarItems } from "./SidebarData";
+import { clsx } from "clsx";
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
-    <aside className="w-72 bg-[#0F0F17] border-r border-zinc-800 flex flex-col">
+    <>
+      <button
+        type="button"
+        aria-label="Close sidebar overlay"
+        onClick={onClose}
+        className={clsx(
+          "fixed inset-0 z-30 bg-black/60 backdrop-blur-sm transition lg:hidden",
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+      />
 
-      {/* Logo */}
-      <div className="px-6 py-8">
-
-        <div className="flex items-center gap-3">
-
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-600 to-blue-500 flex items-center justify-center shadow-lg shadow-violet-500/30">
-
-            <BrainCircuit className="text-white" size={26} />
-
+      <aside
+        className={clsx(
+          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-[#0d0d16]/95 shadow-2xl backdrop-blur-xl transition-transform duration-300 light:border-slate-200 light:bg-white/95 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <div className="flex items-center justify-between px-5 py-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-indigo-500 shadow-lg shadow-violet-700/30">
+              <BrainCircuit className="text-white" size={24} />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-white light:text-slate-950">
+                AI Company Brain
+              </h1>
+              <p className="text-xs text-zinc-400 light:text-slate-500">
+                Enterprise AI OS
+              </p>
+            </div>
           </div>
-
-          <div>
-
-            <h1 className="font-bold text-xl">
-              AI Company Brain
-            </h1>
-
-            <p className="text-sm text-zinc-400">
-              Enterprise AI Assistant
-            </p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* Navigation */}
-
-      <nav className="px-4 space-y-2 flex-1">
-
-        {sidebarItems.map((item, index) => {
-
-          const Icon = item.icon;
-
-          return (
-
-            <button
-              key={item.title}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300
-
-              ${
-                index === 0
-                  ? "bg-violet-600 text-white shadow-lg shadow-violet-600/30"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-              }`}
-            >
-
-              <Icon size={20} />
-
-              <span className="font-medium">
-                {item.title}
-              </span>
-
-            </button>
-
-          );
-
-        })}
-
-      </nav>
-
-      {/* Status Card */}
-
-      <div className="p-4">
-
-        <div className="rounded-3xl bg-[#18181F] border border-zinc-800 p-5">
-
-          <h3 className="font-semibold">
-            AI Brain Status
-          </h3>
-
-          <div className="flex items-center gap-2 mt-3">
-
-            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-
-            <span className="text-sm text-green-400">
-              All systems operational
-            </span>
-
-          </div>
-
-          <div className="mt-8 flex justify-center">
-
-            <div className="w-24 h-24 rounded-full bg-violet-600 blur-3xl opacity-30 absolute"></div>
-
-            <BrainCircuit
-              size={70}
-              className="relative text-violet-400"
-            />
-
-          </div>
-
-          <button className="mt-8 w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 transition">
-
-            Sync Now
-
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 text-zinc-400 hover:bg-white/10 hover:text-white lg:hidden"
+          >
+            <X size={18} />
           </button>
-
         </div>
 
-      </div>
+        <nav className="flex-1 space-y-1 px-3">
+          {sidebarItems.map((item) => {
+            const Icon = item.icon;
 
-    </aside>
+            return (
+              <NavLink
+                key={item.title}
+                to={item.path}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  clsx(
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+                    isActive
+                      ? "bg-violet-600 text-white shadow-lg shadow-violet-700/30"
+                      : "text-zinc-400 hover:bg-white/[0.07] hover:text-white light:text-slate-600 light:hover:bg-slate-100 light:hover:text-slate-950",
+                  )
+                }
+              >
+                <Icon size={18} />
+                <span>{item.title}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        <div className="p-4">
+          <div className="rounded-lg border border-violet-400/20 bg-violet-500/10 p-4">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-500/50" />
+              <span className="text-sm font-semibold text-white light:text-slate-950">
+                Brain Online
+              </span>
+            </div>
+            <p className="mt-2 text-xs leading-5 text-zinc-400 light:text-slate-500">
+              184 sources synced. Last vector refresh completed 4 minutes ago.
+            </p>
+            <button
+              type="button"
+              className="mt-4 w-full rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-violet-600 light:bg-slate-100 light:text-slate-800"
+            >
+              Run Sync
+            </button>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }

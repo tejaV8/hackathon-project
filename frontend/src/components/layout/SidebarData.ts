@@ -1,15 +1,21 @@
 import {
   Home,
   MessageSquare,
-  Bot,
   FileText,
   Share2,
   CheckSquare,
   BarChart3,
   Shield,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-export const sidebarItems = [
+export interface SidebarItem {
+  title: string;
+  icon: LucideIcon;
+  path: string;
+}
+
+export const sidebarItems: SidebarItem[] = [
   {
     title: "Home",
     icon: Home,
@@ -18,7 +24,7 @@ export const sidebarItems = [
   {
     title: "Ask Brain",
     icon: MessageSquare,
-    path: "/brain",
+    path: "/askbrain",
   },
   {
     title: "Documents",
