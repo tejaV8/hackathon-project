@@ -171,3 +171,71 @@ async def upload_document(
 
     db.refresh(db_doc)
     return db_doc
+
+
+@router.get(
+    "",
+    response_model=list[DocumentResponse],
+)
+def list_documents(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db_session),
+) -> list[Document]:
+    """Retrieve all uploaded documents (Admin sees all, Employee sees public & department documents)."""
+
+    from sqlalchemy import select, or_
+
+    if current_user.role == UserRole.ADMIN:
+        stmt = select(Document).order_by(Document.created_at.desc())
+    else:
+        stmt = select(Document).where(
+            or_(
+                Document.department == None,
+                Document.department == current_user.department
+            )
+        ).order_by(Document.created_at.desc())
+
+    return list(db.scalars(stmt).all())
+
+
+@router.delete(
+    "/{document_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_document(
+    document_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db_session),
+) -> None:
+    """Delete a document by ID (Admin only)."""
+
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required to delete documents.",
+        )
+
+    doc = db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found.",
+        )
+
+    # Clean up from disk
+    if os.path.exists(doc.file_path):
+        try:
+            os.remove(doc.file_path)
+        except Exception as exc:
+            print(f"Failed to delete file {doc.file_path}: {exc}")
+
+    # Clean up from vector store
+    try:
+        from backend.vector_db.client import QdrantVectorStore
+        QdrantVectorStore().delete_by_document_id(doc.id)
+    except Exception as qdrant_exc:
+        print(f"Failed to delete vectors from Qdrant: {qdrant_exc}")
+
+    db.delete(doc)
+    db.commit()
+

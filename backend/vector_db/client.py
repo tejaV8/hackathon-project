@@ -134,3 +134,23 @@ class QdrantVectorStore:
         except Exception as exc:
             print(f"Qdrant search failed: {exc}")
             return []
+
+    def delete_by_document_id(self, document_id: int) -> None:
+        """Delete all chunks belonging to a document from Qdrant."""
+        if not self.enabled or not self.client:
+            return
+        try:
+            self.client.delete(
+                collection_name=self.collection_name,
+                points_selector=Filter(
+                    must=[
+                        FieldCondition(
+                            key="document_id",
+                            match=MatchValue(value=document_id)
+                        )
+                    ]
+                )
+            )
+        except Exception as exc:
+            print(f"Qdrant delete failed: {exc}")
+

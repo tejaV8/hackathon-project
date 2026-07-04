@@ -13,7 +13,7 @@ import Badge from "../components/common/Badge";
 import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import MetricCard from "../components/dashboard/MetricCard";
-import { getDocuments, uploadDocument } from "../services/api";
+import { getDocuments, uploadDocument, deleteDocument } from "../services/api";
 import type { CompanyDocument } from "../types";
 
 function documentTone(status: CompanyDocument["status"]) {
@@ -64,6 +64,15 @@ export default function Documents() {
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
     void handleFiles(event.target.files);
     event.target.value = "";
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await deleteDocument(id);
+      setDocuments((current) => current.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Failed to delete document:", error);
+    }
   }
 
   return (
@@ -225,11 +234,7 @@ export default function Documents() {
                   <td className="py-4 text-right">
                     <Button
                       variant="ghost"
-                      onClick={() =>
-                         setDocuments((current) =>
-                          current.filter((item) => item.id !== document.id),
-                        )
-                      }
+                      onClick={() => handleDelete(document.id)}
                     >
                       <Trash2 size={16} />
                     </Button>
