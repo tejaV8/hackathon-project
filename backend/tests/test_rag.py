@@ -31,6 +31,7 @@ def setup_rag_settings() -> Generator[None, None, None]:
     """Dynamically set settings limits for RAG tests."""
     os.environ["UPLOAD_DIR"] = "test_uploads_rag"
     os.environ["MAX_UPLOAD_SIZE"] = str(100 * 1024)
+    os.environ["ENVIRONMENT"] = "testing"
     from backend.config.settings import get_settings
     get_settings.cache_clear()
     yield

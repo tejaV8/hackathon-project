@@ -19,6 +19,7 @@ def setup_ingestion_settings() -> Generator[None, None, None]:
     """Dynamically set settings limits for ingestion tests."""
     os.environ["UPLOAD_DIR"] = "test_uploads"
     os.environ["MAX_UPLOAD_SIZE"] = str(50 * 1024)  # 50 KB
+    os.environ["ENVIRONMENT"] = "testing"
     from backend.config.settings import get_settings
     get_settings.cache_clear()
     yield
