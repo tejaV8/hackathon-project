@@ -1,58 +1,15 @@
 """FastAPI dependencies for authentication."""
 
-import os
-from collections.abc import Generator
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy import create_engine
-from sqlalchemy.engine import Engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session
 
 from backend.auth.jwt import decode_access_token
+from backend.db.session import get_db_session
 from backend.models.user import User
 
 
 bearer_scheme = HTTPBearer(auto_error=False)
-_engine: Engine | None = None
-_session_factory: sessionmaker[Session] | None = None
-
-
-def get_db_engine() -> Engine:
-    """Return a lazily initialized PostgreSQL SQLAlchemy engine."""
-
-    global _engine
-
-    if _engine is None:
-        database_url = os.getenv("DATABASE_URL")
-
-        if not database_url:
-            raise RuntimeError("DATABASE_URL is required for authentication.")
-
-        _engine = create_engine(database_url, pool_pre_ping=True)
-
-    return _engine
-
-
-def get_db_session() -> Generator[Session, None, None]:
-    """Yield a database session for request-scoped work."""
-
-    global _session_factory
-
-    if _session_factory is None:
-        _session_factory = sessionmaker(
-            bind=get_db_engine(),
-            autoflush=False,
-            autocommit=False,
-            expire_on_commit=False,
-        )
-
-    db = _session_factory()
-
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def get_current_user(

@@ -44,3 +44,25 @@
 - [x] Add package initialization files.
 - [x] Keep scope limited to authentication-related files.
 - [x] Run Python syntax verification once Python is available on PATH.
+
+## Backend Integration Milestone 2: Bootstrap and Auth Integration
+
+- [x] Create FastAPI application entrypoint.
+- [x] Configure environment-driven application settings.
+- [x] Configure SQLAlchemy database engine and session management.
+- [x] Register authentication routes in the FastAPI app.
+- [x] Configure CORS.
+- [x] Add Alembic migration setup.
+- [x] Add initial users table migration.
+- [x] Add authentication and security tests.
+- [x] Verify imports and Python compilation.
+- [x] Verify tests pass.
+- [x] Verify OpenAPI exposes authentication endpoints.
+- [x] Verify Uvicorn startup and Swagger UI availability.
+
+## Remaining Backend Tasks
+
+- [ ] Run `alembic upgrade head` against a real PostgreSQL database.
+- [ ] Commit and push `feature/authentication-module`.
+- [ ] Open a pull request into `develop`.
+- [ ] Wait for approval before starting Milestone 3.

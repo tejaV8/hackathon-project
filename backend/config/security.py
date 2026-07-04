@@ -5,7 +5,8 @@ hard-coded in the application.
 """
 
 from dataclasses import dataclass
-import os
+
+from backend.config.settings import get_settings
 
 
 @dataclass(frozen=True)
@@ -21,12 +22,11 @@ class SecuritySettings:
 def get_security_settings() -> SecuritySettings:
     """Return security settings from the process environment."""
 
+    settings = get_settings()
+
     return SecuritySettings(
-        jwt_secret_key=os.getenv("JWT_SECRET_KEY", "change-me-in-production"),
-        jwt_algorithm=os.getenv("JWT_ALGORITHM", "HS256"),
-        access_token_expire_minutes=int(
-            os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
-        ),
-        allow_admin_signup=os.getenv("ALLOW_ADMIN_SIGNUP", "false").lower()
-        == "true",
+        jwt_secret_key=settings.jwt_secret_key,
+        jwt_algorithm=settings.jwt_algorithm,
+        access_token_expire_minutes=settings.access_token_expire_minutes,
+        allow_admin_signup=settings.allow_admin_signup,
     )
