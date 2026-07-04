@@ -13,6 +13,7 @@ import Badge from "../components/common/Badge";
 import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import MetricCard from "../components/dashboard/MetricCard";
+import PageHeader from "../components/dashboard/PageHeader";
 import { getDocuments, uploadDocument } from "../services/api";
 import type { CompanyDocument } from "../types";
 
@@ -68,19 +69,14 @@ export default function Documents() {
 
   return (
     <div className="space-y-7">
-      <section className="grid gap-6 xl:grid-cols-[1fr_380px]">
-        <div className="rounded-3xl border border-white/10 bg-[#111118] p-8 shadow-2xl shadow-violet-950/20 light:border-slate-200 light:bg-white">
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-200 light:text-violet-700">
-            <Database size={16} />
-            Enterprise knowledge hub
-          </div>
-          <h1 className="mt-5 text-5xl font-semibold tracking-tight">Documents</h1>
-          <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-400 light:text-slate-600">
-            Upload, categorize, index, and govern the source material that powers
-            every AI answer and workflow.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Enterprise knowledge hub"
+        title="Documents"
+        subtitle="Upload, categorize, index, and govern the source material that powers every AI answer and workflow."
+        icon={Database}
+      />
 
+      <section>
         <Card
           className={`border-dashed p-6 text-center transition ${
             isDragging ? "border-violet-400 bg-violet-500/10" : ""

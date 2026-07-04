@@ -18,6 +18,7 @@ import {
 import { BarChart3, Database, FileText, LineChart as LineChartIcon } from "lucide-react";
 import Card from "../components/common/Card";
 import MetricCard from "../components/dashboard/MetricCard";
+import PageHeader from "../components/dashboard/PageHeader";
 import { getAnalytics } from "../services/api";
 import type { Analytics as AnalyticsData } from "../types";
 
@@ -53,17 +54,12 @@ export default function Analytics() {
 
   return (
     <div className="space-y-7">
-      <section className="rounded-3xl border border-white/10 bg-[#111118] p-8 shadow-2xl shadow-violet-950/20 light:border-slate-200 light:bg-white">
-        <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-200 light:text-violet-700">
-          <BarChart3 size={16} />
-          Executive dashboard
-        </div>
-        <h1 className="mt-5 text-5xl font-semibold tracking-tight">Analytics</h1>
-        <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-400 light:text-slate-600">
-          Measure adoption, knowledge growth, source quality, and AI operating
-          impact across every department.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="Executive dashboard"
+        title="Analytics"
+        subtitle="Measure adoption, knowledge growth, source quality, and AI operating impact across every department."
+        icon={BarChart3}
+      />
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard title="Queries Today" value="1.8K" trend="+24%" icon={LineChartIcon} />

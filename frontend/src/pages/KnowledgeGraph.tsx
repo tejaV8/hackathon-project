@@ -3,6 +3,7 @@ import Badge from "../components/common/Badge";
 import Card from "../components/common/Card";
 import InsightCard from "../components/dashboard/InsightCard";
 import MetricCard from "../components/dashboard/MetricCard";
+import PageHeader from "../components/dashboard/PageHeader";
 
 const nodes = [
   { name: "Revenue Plan", type: "Finance", x: "18%", y: "42%" },
@@ -22,17 +23,12 @@ const relationships = [
 export default function KnowledgeGraph() {
   return (
     <div className="space-y-7">
-      <section className="rounded-3xl border border-white/10 bg-[#111118] p-8 shadow-2xl shadow-violet-950/20 light:border-slate-200 light:bg-white">
-        <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-200 light:text-violet-700">
-          <Network size={16} />
-          Company memory map
-        </div>
-        <h1 className="mt-5 text-5xl font-semibold tracking-tight">Knowledge Graph</h1>
-        <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-400 light:text-slate-600">
-          Explore semantic relationships between documents, decisions, owners,
-          systems, and AI-generated insights.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="Company memory map"
+        title="Knowledge Graph"
+        subtitle="Explore semantic relationships between documents, decisions, owners, systems, and AI-generated insights."
+        icon={Network}
+      />
 
       <div className="grid gap-5 md:grid-cols-3">
         <MetricCard title="Entities" value="2.8K" trend="+312 linked" icon={Radar} />

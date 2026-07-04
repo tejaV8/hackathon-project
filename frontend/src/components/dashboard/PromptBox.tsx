@@ -35,22 +35,23 @@ export default function PromptBox({
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="secondary" className="rounded-2xl">
               <Paperclip size={16} />
-              Upload
+              Upload Document
             </Button>
             <Button variant="secondary" className="rounded-2xl">
               <Mic size={16} />
-              Voice
+              Voice Input
             </Button>
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-2.5 text-sm font-semibold text-zinc-200 transition hover:border-violet-400/50 light:border-slate-200 light:bg-white light:text-slate-700"
             >
               <Bot size={16} />
-              Strategy Agent
+              General Agent
               <ChevronDown size={15} />
             </button>
           </div>
           <Button className="rounded-2xl px-5">
+            Ask AI
             <ArrowUp size={18} />
           </Button>
         </div>

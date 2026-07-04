@@ -2,6 +2,7 @@ import { Cpu, Database, Lock, Plug, ShieldCheck, Users } from "lucide-react";
 import Badge from "../components/common/Badge";
 import Card from "../components/common/Card";
 import MetricCard from "../components/dashboard/MetricCard";
+import PageHeader from "../components/dashboard/PageHeader";
 import { mockUsers } from "../services/api";
 
 const statusCards = [
@@ -14,17 +15,12 @@ const statusCards = [
 export default function Admin() {
   return (
     <div className="space-y-7">
-      <section className="rounded-3xl border border-white/10 bg-[#111118] p-8 shadow-2xl shadow-violet-950/20 light:border-slate-200 light:bg-white">
-        <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-200 light:text-violet-700">
-          <ShieldCheck size={16} />
-          Enterprise controls
-        </div>
-        <h1 className="mt-5 text-5xl font-semibold tracking-tight">Admin Console</h1>
-        <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-400 light:text-slate-600">
-          Manage platform health, access, storage, connected services, and AI
-          governance from one operating console.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="Enterprise controls"
+        title="Admin Console"
+        subtitle="Manage platform health, access, storage, connected services, and AI governance from one operating console."
+        icon={ShieldCheck}
+      />
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {statusCards.map(([label, value, detail, Icon]) => (
