@@ -7,8 +7,15 @@ import {
   BarChart3,
   Shield,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-export const sidebarItems = [
+export interface SidebarItem {
+  title: string;
+  icon: LucideIcon;
+  path: string;
+}
+
+export const sidebarItems: SidebarItem[] = [
   {
     title: "Home",
     icon: Home,
@@ -17,7 +24,7 @@ export const sidebarItems = [
   {
     title: "Ask Brain",
     icon: MessageSquare,
-    path: "/brain",
+    path: "/askbrain",
   },
   {
     title: "Documents",
@@ -30,7 +37,7 @@ export const sidebarItems = [
     path: "/knowledge",
   },
   {
-    title: "Tasks",
+    title: "AI Workflows",
     icon: CheckSquare,
     path: "/tasks",
   },

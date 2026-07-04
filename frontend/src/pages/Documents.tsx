@@ -1,201 +1,245 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { UploadCloud, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  Database,
+  FileSpreadsheet,
+  FileText,
+  Filter,
+  Search,
+  Trash2,
+  UploadCloud,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import type { ChangeEvent } from "react";
+import Badge from "../components/common/Badge";
+import Button from "../components/common/Button";
+import Card from "../components/common/Card";
+import MetricCard from "../components/dashboard/MetricCard";
+import { getDocuments, uploadDocument } from "../services/api";
+import type { CompanyDocument } from "../types";
+
+function documentTone(status: CompanyDocument["status"]) {
+  if (status === "Indexed") return "green";
+  if (status === "Processing") return "amber";
+  return "red";
+}
+
+function DocumentIcon({ type }: { type: CompanyDocument["type"] }) {
+  if (type === "CSV") return <FileSpreadsheet size={19} className="text-emerald-300" />;
+  return <FileText size={19} className="text-violet-300" />;
+}
+
+const categories = [
+  ["All Knowledge", "184"],
+  ["Finance", "42"],
+  ["Product", "36"],
+  ["Support", "51"],
+  ["HR & Legal", "28"],
+];
 
 export default function Documents() {
-  const [file, setFile] = useState<File | null>(null);
-  const [department, setDepartment] = useState("public");
-  const [uploading, setUploading] = useState(false);
-  const [success, setSuccess] = useState<any | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [dragOver, setDragOver] = useState(false);
+  const [documents, setDocuments] = useState<CompanyDocument[]>([]);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"All" | CompanyDocument["status"]>("All");
+  const [category, setCategory] = useState("All Knowledge");
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      setError(null);
-      setSuccess(null);
-    }
-  };
+  useEffect(() => {
+    getDocuments().then(setDocuments);
+  }, []);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(true);
-  };
+  const filteredDocuments = useMemo(() => {
+    return documents.filter((document) => {
+      const matchesQuery = document.name.toLowerCase().includes(query.toLowerCase());
+      const matchesFilter = filter === "All" || document.status === filter;
+      return matchesQuery && matchesFilter;
+    });
+  }, [documents, filter, query]);
 
-  const handleDragLeave = () => {
-    setDragOver(false);
-  };
+  async function handleFiles(files: FileList | null) {
+    if (!files?.length) return;
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0]);
-      setError(null);
-      setSuccess(null);
-    }
-  };
+    const uploaded = await Promise.all(Array.from(files).map((file) => uploadDocument(file)));
+    setDocuments((current) => [...uploaded, ...current]);
+  }
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file) {
-      setError("Please select a file to upload first.");
-      return;
-    }
-
-    setUploading(true);
-    setError(null);
-    setSuccess(null);
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("department", department === "public" ? "" : department);
-
-    try {
-      // Connects directly to backend upload endpoint
-      const res = await axios.post("http://localhost:8000/documents/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          // The dev bypass automatically authenticates, but we specify placeholder headers just in case
-        },
-      });
-
-      setSuccess(res.data);
-      setFile(null);
-      setDepartment("public");
-    } catch (err: any) {
-      setError(
-        err.response?.data?.detail ||
-          "Failed to upload document. Ensure file format is PDF, DOCX, TXT, or MD and fits size limits."
-      );
-    } finally {
-      setUploading(false);
-    }
-  };
+  function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
+    void handleFiles(event.target.files);
+    event.target.value = "";
+  }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-10">
-      <div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-white">
-          Document Vault
-        </h1>
-        <p className="mt-2 text-zinc-400 text-lg">
-          Upload and index files (PDF, DOCX, TXT, MD) into the AI Company Brain.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Upload Form Box */}
-        <div className="lg:col-span-2 rounded-3xl border border-zinc-800 bg-[#111118] p-8 shadow-xl space-y-6">
-          <h2 className="text-xl font-semibold text-zinc-200">Upload Document</h2>
-
-          <form onSubmit={handleUpload} className="space-y-6">
-            {/* Drag Drop Area */}
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`
-                border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center gap-4 cursor-pointer transition
-                ${dragOver ? "border-violet-500 bg-violet-950/10" : "border-zinc-800 hover:border-zinc-700 bg-zinc-900/10"}
-              `}
-            >
-              <input
-                type="file"
-                id="file-upload"
-                className="hidden"
-                accept=".pdf,.docx,.txt,.text,.md"
-                onChange={handleFileChange}
-                disabled={uploading}
-              />
-              <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-2">
-                <UploadCloud size={48} className="text-zinc-500 hover:text-zinc-400 transition" />
-                <span className="text-zinc-300 font-medium">
-                  {file ? file.name : "Select a document or drag it here"}
-                </span>
-                <span className="text-xs text-zinc-500">
-                  PDF, DOCX, TXT, or Markdown (Max 10MB)
-                </span>
-              </label>
-            </div>
-
-            {/* Department Dropdown Selector */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-zinc-400">Department Indexing Access</label>
-              <select
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                disabled={uploading}
-                className="w-full bg-[#181822] border border-zinc-800 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500 transition"
-              >
-                <option value="public">Public (All Employees)</option>
-                <option value="Engineering">Engineering</option>
-                <option value="HR">HR (Human Resources)</option>
-                <option value="Finance">Finance</option>
-                <option value="Operations">Operations</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Legal">Legal</option>
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              disabled={uploading || !file}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 text-white font-bold hover:scale-[1.01] transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {uploading ? (
-                <>
-                  <RefreshCw className="animate-spin" size={20} />
-                  Ingesting Document...
-                </>
-              ) : (
-                "Ingest into AI Brain"
-              )}
-            </button>
-          </form>
+    <div className="space-y-7">
+      <section className="grid gap-6 xl:grid-cols-[1fr_380px]">
+        <div className="rounded-3xl border border-white/10 bg-[#111118] p-8 shadow-2xl shadow-violet-950/20 light:border-slate-200 light:bg-white">
+          <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-200 light:text-violet-700">
+            <Database size={16} />
+            Enterprise knowledge hub
+          </div>
+          <h1 className="mt-5 text-5xl font-semibold tracking-tight">Documents</h1>
+          <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-400 light:text-slate-600">
+            Upload, categorize, index, and govern the source material that powers
+            every AI answer and workflow.
+          </p>
         </div>
 
-        {/* Notifications and status panel */}
-        <div className="space-y-6">
-          {success && (
-            <div className="rounded-3xl border border-green-900/50 bg-green-950/10 p-6 shadow-xl space-y-4">
-              <div className="flex items-center gap-3 text-green-400">
-                <CheckCircle2 size={24} />
-                <h3 className="font-semibold text-lg">Ingestion Successful!</h3>
-              </div>
-              <div className="text-sm text-zinc-300 space-y-2">
-                <p><strong className="text-zinc-400">File:</strong> {success.filename}</p>
-                <p><strong className="text-zinc-400">Department:</strong> {success.department || "Public"}</p>
-                <p><strong className="text-zinc-400">Size:</strong> {Math.round(success.file_size / 1024)} KB</p>
-                <div className="p-3 bg-green-900/10 border border-green-800/30 rounded-xl mt-3 text-xs text-green-300">
-                  Document text has been parsed, vectorized, and cataloged inside Qdrant and Neo4j databases.
-                </div>
-              </div>
-            </div>
-          )}
+        <Card
+          className={`border-dashed p-6 text-center transition ${
+            isDragging ? "border-violet-400 bg-violet-500/10" : ""
+          }`}
+          onDragOver={(event) => {
+            event.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={(event) => {
+            event.preventDefault();
+            setIsDragging(false);
+            void handleFiles(event.dataTransfer.files);
+          }}
+        >
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-violet-500/15 text-violet-200">
+            <UploadCloud size={30} />
+          </div>
+          <h2 className="mt-4 text-xl font-semibold">Add knowledge</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-400 light:text-slate-500">
+            Drop files or select uploads. PDF, DOCX, CSV, and TXT supported.
+          </p>
+          <label className="mt-5 inline-flex cursor-pointer">
+            <input
+              type="file"
+              multiple
+              className="sr-only"
+              onChange={handleInputChange}
+              accept=".pdf,.docx,.txt,.csv,.pptx"
+            />
+            <span className="rounded-2xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-700/30 transition hover:bg-violet-500">
+              Upload files
+            </span>
+          </label>
+        </Card>
+      </section>
 
-          {error && (
-            <div className="rounded-3xl border border-red-950 bg-red-950/20 p-6 shadow-xl space-y-3">
-              <div className="flex items-center gap-3 text-red-400">
-                <AlertCircle size={24} />
-                <h3 className="font-semibold text-lg">Ingestion Failed</h3>
-              </div>
-              <p className="text-sm text-zinc-300 leading-relaxed">{error}</p>
-            </div>
-          )}
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard title="PDF" value="96" trend="+14 indexed" icon={FileText} accent="violet" />
+        <MetricCard title="DOCX" value="44" trend="+6 indexed" icon={FileText} accent="indigo" />
+        <MetricCard title="CSV" value="31" trend="+4 analyzed" icon={FileSpreadsheet} accent="blue" />
+        <MetricCard title="TXT" value="13" trend="stable" icon={FileText} accent="purple" />
+      </div>
 
-          <div className="rounded-3xl border border-zinc-800 bg-[#111118]/40 p-6 space-y-4">
-            <h3 className="font-semibold text-zinc-300">Ingestion Guidelines</h3>
-            <ul className="text-xs text-zinc-500 space-y-2 list-disc list-inside">
-              <li>PDF and Word (.docx) files are processed page-by-page.</li>
-              <li>Text cleaners strip irrelevant headers and page markers.</li>
-              <li>Semantics parser maps paragraphs recursively.</li>
-              <li>Admin privileges are required for uploading.</li>
-            </ul>
+      <Card className="p-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-wrap gap-2">
+            {categories.map(([name, count]) => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => setCategory(name)}
+                className={`rounded-2xl px-4 py-2 text-sm font-semibold transition ${
+                  category === name
+                    ? "bg-violet-600 text-white shadow-lg shadow-violet-950/20"
+                    : "border border-white/10 bg-white/[0.05] text-zinc-300 hover:border-violet-400/60 light:border-slate-200 light:text-slate-700"
+                }`}
+              >
+                {name} <span className="opacity-60">{count}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="relative min-w-[280px]">
+              <Search
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
+              />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search knowledge..."
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] py-3 pl-10 pr-3 text-sm outline-none focus:border-violet-400 light:border-slate-200 light:bg-white"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter size={17} className="text-zinc-500" />
+              {(["All", "Indexed", "Processing"] as const).map((status) => (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => setFilter(status)}
+                  className={`rounded-2xl px-3 py-2 text-sm font-semibold transition ${
+                    filter === status
+                      ? "bg-violet-600 text-white"
+                      : "bg-white/[0.06] text-zinc-300 hover:bg-white/[0.1] light:text-slate-700"
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[860px] text-left text-sm">
+            <thead className="text-xs uppercase tracking-wide text-zinc-500 light:text-slate-500">
+              <tr>
+                <th className="py-4">Knowledge Source</th>
+                <th className="py-4">Owner</th>
+                <th className="py-4">Connector</th>
+                <th className="py-4">Status</th>
+                <th className="py-4">Indexing</th>
+                <th className="py-4 text-right">Manage</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/10 light:divide-slate-200">
+              {filteredDocuments.map((document) => (
+                <tr key={document.id} className="transition hover:bg-white/[0.035]">
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-2xl bg-white/[0.06] p-3">
+                        <DocumentIcon type={document.type} />
+                      </div>
+                      <div>
+                        <p className="font-semibold">{document.name}</p>
+                        <p className="mt-1 text-xs text-zinc-500">
+                          {document.type} • {document.size} • {document.uploadedAt}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 text-zinc-400 light:text-slate-600">
+                    {document.owner}
+                  </td>
+                  <td className="py-4 text-zinc-400 light:text-slate-600">
+                    {document.source}
+                  </td>
+                  <td className="py-4">
+                    <Badge tone={documentTone(document.status)}>{document.status}</Badge>
+                  </td>
+                  <td className="py-4">
+                    <div className="h-2.5 w-32 rounded-full bg-white/10 light:bg-slate-200">
+                      <div
+                        className="h-2.5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-400"
+                        style={{ width: `${document.progress}%` }}
+                      />
+                    </div>
+                  </td>
+                  <td className="py-4 text-right">
+                    <Button
+                      variant="ghost"
+                      onClick={() =>
+                         setDocuments((current) =>
+                          current.filter((item) => item.id !== document.id),
+                        )
+                      }
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }
