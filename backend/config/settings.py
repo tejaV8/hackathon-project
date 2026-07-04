@@ -32,6 +32,25 @@ class Settings(BaseSettings):
     )
     allow_admin_signup: bool = Field(False, alias="ALLOW_ADMIN_SIGNUP")
 
+    # Neo4j Graph Database Configuration
+    neo4j_uri: str = Field("bolt://localhost:7687", alias="NEO4J_URI")
+    neo4j_username: str = Field("neo4j", alias="NEO4J_USERNAME")
+    neo4j_password: str = Field("password", alias="NEO4J_PASSWORD")
+
+    # Qdrant Vector Database Configuration
+    qdrant_url: str = Field("http://localhost:6333", alias="QDRANT_URL")
+    qdrant_api_key: str | None = Field(None, alias="QDRANT_API_KEY")
+    qdrant_collection_name: str = Field("company_brain", alias="QDRANT_COLLECTION")
+
+    # AI Service Settings
+    openai_api_key: str | None = Field(None, alias="OPENAI_API_KEY")
+    embedding_model: str = Field("text-embedding-3-small", alias="EMBEDDING_MODEL")
+    llm_model: str = Field("gpt-4o-mini", alias="LLM_MODEL")
+
+    # Storage Configuration
+    upload_dir: str = Field("uploads", alias="UPLOAD_DIR")
+    max_upload_size_bytes: int = Field(10 * 1024 * 1024, alias="MAX_UPLOAD_SIZE")
+
 
 @lru_cache
 def get_settings() -> Settings:

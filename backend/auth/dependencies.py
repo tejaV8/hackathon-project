@@ -27,6 +27,10 @@ def get_current_user(
     if credentials is None:
         raise auth_error
 
+    from backend.services.auth_service import AuthService
+    if AuthService(db).is_token_blacklisted(credentials.credentials):
+        raise auth_error
+
     try:
         payload = decode_access_token(credentials.credentials)
         user_id = int(payload.get("sub", ""))

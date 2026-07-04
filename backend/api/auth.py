@@ -1,9 +1,10 @@
 """Authentication API routes."""
 
 from fastapi import APIRouter, Depends, status
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
-from backend.auth.dependencies import get_current_active_user
+from backend.auth.dependencies import bearer_scheme, get_current_active_user
 from backend.db.session import get_db_session
 from backend.models.user import User
 from backend.schemas.auth import (
@@ -50,3 +51,15 @@ def get_me(
     """Return the current authenticated user."""
 
     return current_user
+
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: Session = Depends(get_db_session),
+) -> dict[str, str]:
+    """Logout the current user by blacklisting their access token."""
+
+    if credentials:
+        AuthService(db).blacklist_token(credentials.credentials)
+    return {"detail": "Successfully logged out."}

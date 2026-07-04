@@ -199,3 +199,43 @@ def test_inactive_user_cannot_access_current_user(
     )
 
     assert response.status_code == 403
+
+
+def test_signup_with_department(client: TestClient) -> None:
+    """Verify that department information is recorded and returned on signup."""
+    payload = signup_payload("dept_user@example.com")
+    payload["department"] = "Engineering"
+    response = client.post("/auth/signup", json=payload)
+    assert response.status_code == 201
+    body = response.json()
+    assert body["department"] == "Engineering"
+
+
+def test_logout_blacklists_token(client: TestClient) -> None:
+    """Verify that logging out blacklists the active token."""
+    # 1. Create a user
+    client.post("/auth/signup", json=signup_payload("logout_user@example.com"))
+
+    # 2. Login to get token
+    login_response = client.post(
+        "/auth/login",
+        json={
+            "email": "logout_user@example.com",
+            "password": "correct-horse-password",
+        },
+    )
+    token = login_response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # 3. Verify token works
+    me_response = client.get("/auth/me", headers=headers)
+    assert me_response.status_code == 200
+
+    # 4. Logout (invalidate token)
+    logout_response = client.post("/auth/logout", headers=headers)
+    assert logout_response.status_code == 200
+    assert logout_response.json() == {"detail": "Successfully logged out."}
+
+    # 5. Verify subsequent /me requests fail with 401
+    blocked_response = client.get("/auth/me", headers=headers)
+    assert blocked_response.status_code == 401

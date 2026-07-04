@@ -48,6 +48,7 @@ class AuthService:
             email=normalized_email,
             password_hash=hash_password(payload.password),
             role=payload.role,
+            department=payload.department.strip() if payload.department else None,
             is_active=True,
         )
         self._db.add(user)
@@ -86,6 +87,40 @@ class AuthService:
             subject=str(user.id),
             claims={"role": user.role.value, "email": user.email},
         )
+
+    def blacklist_token(self, token: str) -> None:
+        """Add a token to the blacklist using its expiration claim."""
+
+        from datetime import datetime, timezone, timedelta
+        from backend.models.token_blacklist import BlacklistedToken
+        from backend.auth.jwt import decode_access_token
+
+        try:
+            payload = decode_access_token(token)
+            exp_timestamp = payload.get("exp")
+            if exp_timestamp:
+                expires_at = datetime.fromtimestamp(exp_timestamp, timezone.utc)
+            else:
+                expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+        except ValueError:
+            expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+
+        stmt = select(BlacklistedToken).where(BlacklistedToken.token == token)
+        existing = self._db.scalar(stmt)
+        if not existing:
+            blacklisted = BlacklistedToken(token=token, expires_at=expires_at)
+            self._db.add(blacklisted)
+            try:
+                self._db.commit()
+            except IntegrityError:
+                self._db.rollback()
+
+    def is_token_blacklisted(self, token: str) -> bool:
+        """Check if a token has been blacklisted."""
+
+        from backend.models.token_blacklist import BlacklistedToken
+        stmt = select(BlacklistedToken).where(BlacklistedToken.token == token)
+        return self._db.scalar(stmt) is not None
 
     @staticmethod
     def _normalize_email(email: str) -> str:

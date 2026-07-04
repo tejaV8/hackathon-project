@@ -14,6 +14,7 @@ class SignupRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=128)
     role: UserRole = UserRole.EMPLOYEE
+    department: str | None = Field(None, max_length=100)
 
 
 class LoginRequest(BaseModel):
@@ -39,6 +40,7 @@ class UserResponse(BaseModel):
     full_name: str
     email: EmailStr
     role: UserRole
+    department: str | None
     is_active: bool
     created_at: datetime
     updated_at: datetime
