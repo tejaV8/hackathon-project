@@ -37,7 +37,7 @@ export const sidebarItems: SidebarItem[] = [
     path: "/knowledge",
   },
   {
-    title: "Tasks",
+    title: "AI Workflows",
     icon: CheckSquare,
     path: "/tasks",
   },

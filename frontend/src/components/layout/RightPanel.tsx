@@ -1,25 +1,25 @@
-import { Activity, Database, FileText, PlugZap } from "lucide-react";
+import { Activity, Database, FileText, PlugZap, Sparkles } from "lucide-react";
 import Badge from "../common/Badge";
 import Card from "../common/Card";
 
 export default function RightPanel() {
   return (
-    <aside className="sticky top-0 hidden h-screen w-80 shrink-0 overflow-y-auto border-l border-white/10 bg-[#0b0b13]/75 p-5 backdrop-blur-xl light:border-slate-200 light:bg-white/70 xl:block">
-      <div className="space-y-5">
+    <aside className="sticky top-0 hidden h-screen w-[min(20vw,320px)] max-w-80 shrink-0 overflow-y-auto border-l border-white/10 bg-[#0b0b13]/75 p-4 backdrop-blur-xl light:border-slate-200 light:bg-white/70 2xl:block">
+      <div className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold text-white light:text-slate-950">
-            AI Activity
+          <h2 className="text-base font-semibold text-white light:text-slate-950">
+            Insights
           </h2>
-          <p className="mt-1 text-sm text-zinc-500 light:text-slate-500">
+          <p className="mt-1 text-xs leading-5 text-zinc-500 light:text-slate-500">
             Live intelligence from connected workspaces.
           </p>
         </div>
 
-        <Card>
+        <Card className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity size={18} className="text-emerald-300" />
-              <span className="font-semibold">System Status</span>
+              <span className="text-sm font-semibold">System</span>
             </div>
             <Badge tone="green">Healthy</Badge>
           </div>
@@ -35,10 +35,10 @@ export default function RightPanel() {
           </div>
         </Card>
 
-        <Card>
+        <Card className="p-4">
           <div className="mb-4 flex items-center gap-2">
             <FileText size={18} className="text-violet-300" />
-            <h3 className="font-semibold">Recent Uploads</h3>
+            <h3 className="text-sm font-semibold">Recent Uploads</h3>
           </div>
           {["Q3 Operating Plan.pdf", "Support Escalations.csv", "Security Playbook.docx"].map(
             (file) => (
@@ -55,10 +55,10 @@ export default function RightPanel() {
           )}
         </Card>
 
-        <Card>
+        <Card className="p-4">
           <div className="mb-4 flex items-center gap-2">
             <PlugZap size={18} className="text-sky-300" />
-            <h3 className="font-semibold">Connected Sources</h3>
+            <h3 className="text-sm font-semibold">Sources</h3>
           </div>
           <div className="space-y-3">
             {["Google Drive", "Slack", "Notion", "Jira"].map((source) => (
@@ -70,16 +70,26 @@ export default function RightPanel() {
           </div>
         </Card>
 
-        <Card>
+        <Card className="p-4">
           <div className="flex items-center gap-2">
             <Database size={18} className="text-violet-300" />
-            <h3 className="font-semibold">Knowledge Health</h3>
+            <h3 className="text-sm font-semibold">Knowledge Health</h3>
           </div>
           <div className="mt-4 h-2 rounded-full bg-white/10">
             <div className="h-2 w-[84%] rounded-full bg-gradient-to-r from-violet-500 to-indigo-400" />
           </div>
           <p className="mt-2 text-xs text-zinc-500 light:text-slate-500">
             84% coverage across priority departments.
+          </p>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-violet-500/15 to-indigo-500/5 p-4">
+          <div className="flex items-center gap-2">
+            <Sparkles size={18} className="text-violet-200" />
+            <h3 className="text-sm font-semibold">Recommendation</h3>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-zinc-400 light:text-slate-600">
+            Review unresolved Jira tickets before the Q3 launch readiness sync.
           </p>
         </Card>
       </div>
