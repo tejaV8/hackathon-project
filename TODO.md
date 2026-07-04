@@ -120,6 +120,3 @@
 - [x] Implement request/response logging middleware in `backend/middleware/logging_middleware.py`.
 - [x] Implement central exception interceptors in `backend/main.py`.
 - [x] Write and run 30 unit and integration tests verifying all platform functionalities.
-
-
-
